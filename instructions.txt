@@ -1,0 +1,3 @@
+## FinAPI - Financeira
+
+Requisitos(deve) e regras de negócio (nao deve)
