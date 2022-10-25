@@ -22,6 +22,6 @@ Requisitos(deve) e regras de negócio (nao deve)
 [] Não deve ser possível excluir conta não existente
 [] Não deve ser possível fazer saque com saldo insuficiente
 
-* COMANDS * 
+-------------- COMANDS -------------- 
 
 yarn add <library> → for add new dependency
