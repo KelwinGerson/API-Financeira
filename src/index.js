@@ -6,7 +6,7 @@ const app = express()
 
 const customers = [];
 
-// iddleware
+// Middleware
 app.use(express.json());
 
 function verifyIfExistsAccountCPF (request, response, next) {
@@ -17,9 +17,9 @@ function verifyIfExistsAccountCPF (request, response, next) {
     if(!customer) {
         return response.status(400).json({error: "Customer not found!"})
     }
-
+    // disponibilizando para outras funções consumirem
     request.customer = customer;
-    
+    // if everything is ok, the code will follow
     return next();
 }
 
@@ -52,14 +52,31 @@ app.post('/account', (request, response) => {
     })
     
 });
-
 // always below use this middleware
-app.use(verifyIfExistsAccountCPF);
+// app.use(verifyIfExistsAccountCPF);
 
 app.get("/statement", verifyIfExistsAccountCPF, (request, response) => {
-    const {customer} = request;
+    const { customer } = request;
     return response.json(customer.statement) 
 });
+
+app.post("/deposit", verifyIfExistsAccountCPF, (request, response) => {
+    const { description, amount} = request.body;
+    const { customer } = request;
+    const statementOperation = {
+        description,
+        amount,
+        create_at: new Date(),
+        type: "credit"
+    }
+
+    customer.statement.push(statementOperation);
+
+    return response.status(201).send({
+        message: "Deposit with sucess"
+    })
+    
+});   
 
 app.listen(1234, () => {
     console.log('Listening API...')
