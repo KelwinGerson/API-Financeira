@@ -13,6 +13,7 @@ app.post('/account', (request, response) => {
     // desestruturação
     const { cpf, name } = request.body;
 
+    // '.some' returns a boolean value
     const customerAlreadyExists = customers.some(
         // (===) checks whether its two operands are equal, returning a Boolean result 
         (customer) => customer.cpf === cpf
@@ -36,6 +37,15 @@ app.post('/account', (request, response) => {
         message: "Usuário criado com sucesso"
     })
     
+});
+
+// get cpf in route params 
+app.get("/statement/:cpf", (request, response) => {
+    const { cpf } = request.params;
+    
+    const customer = customers.find(customer => customer.cpf === cpf);
+
+    return response.json(customer.statement) 
 });
 
 app.listen(1234, () => {
