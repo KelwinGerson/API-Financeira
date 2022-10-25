@@ -6,8 +6,22 @@ const app = express()
 
 const customers = [];
 
-// middleware
+// iddleware
 app.use(express.json());
+
+function verifyIfExistsAccountCPF (request, response, next) {
+    const { cpf } = request.headers;
+    //verify if count exist
+    const customer = customers.find(customer => customer.cpf === cpf);
+
+    if(!customer) {
+        return response.status(400).json({error: "Customer not found!"})
+    }
+
+    request.customer = customer;
+    
+    return next();
+}
 
 app.post('/account', (request, response) => {
     // desestruturação
@@ -39,12 +53,11 @@ app.post('/account', (request, response) => {
     
 });
 
-// get cpf in route params 
-app.get("/statement/:cpf", (request, response) => {
-    const { cpf } = request.params;
-    
-    const customer = customers.find(customer => customer.cpf === cpf);
+// always below use this middleware
+app.use(verifyIfExistsAccountCPF);
 
+app.get("/statement", verifyIfExistsAccountCPF, (request, response) => {
+    const {customer} = request;
     return response.json(customer.statement) 
 });
 
