@@ -1,3 +1,4 @@
+const { response } = require('express');
 const express = require('express')
 const {v4: uuidv4 } = require('uuid')
 // uuid v4 utiliza números randomicos
@@ -8,6 +9,19 @@ const customers = [];
 
 // Middleware
 app.use(express.json());
+
+// calc account movimentations 
+function getBalance(statement) {
+    const balance = statement.reduce((acc, operation) => {
+        if(operation.type === 'credit') {
+            return acc + operation.amount;
+        } else {
+            return acc - operation.amount;
+        }
+    }, 0)
+
+    return balance;
+}
 
 function verifyIfExistsAccountCPF (request, response, next) {
     const { cpf } = request.headers;
@@ -52,7 +66,7 @@ app.post('/account', (request, response) => {
     })
     
 });
-// always below use this middleware
+// always code below will be use this middleware
 // app.use(verifyIfExistsAccountCPF);
 
 app.get("/statement", verifyIfExistsAccountCPF, (request, response) => {
@@ -77,6 +91,31 @@ app.post("/deposit", verifyIfExistsAccountCPF, (request, response) => {
     })
     
 });   
+
+// withdraw
+app.post("/withdraw", verifyIfExistsAccountCPF, (request, response) =>{
+    const { amount} = request.body;
+    const { customer } = request;
+
+    const balance = getBalance(customer.statement)
+
+    if( balance < amount) {
+        return response.status(400).json({error: "Insuufficient funds"})
+    }
+
+    const statementOperation = {
+        amount,
+        create_at: new Date(),
+        type: "debit"
+    }
+
+    customer.statement.push(statementOperation)
+
+    return response.status(201).send({
+        movimentation: statementOperation,
+        quantity: balance
+    });
+});
 
 app.listen(1234, () => {
     console.log('Listening API...')
