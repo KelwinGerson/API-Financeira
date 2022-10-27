@@ -66,8 +66,6 @@ app.post('/account', (request, response) => {
     })
     
 });
-// always code below will be use this middleware
-// app.use(verifyIfExistsAccountCPF);
 
 app.get("/statement", verifyIfExistsAccountCPF, (request, response) => {
     const { customer } = request;
@@ -132,6 +130,23 @@ app.get("/statement/date", verifyIfExistsAccountCPF, (request, response) => {
     return response.json(statement)
 });
 
+// change name
+app.put("/account", verifyIfExistsAccountCPF, (request, response) => {
+    const { name } = request.body;
+    const { customer } = request;
+
+    customer.name = name;
+
+    return response.status(201).send({
+        name: name,
+    })
+});
+
+app.get("/account", verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;
+
+    return response.json(customer)
+});
 
 app.listen(1234, () => {
     console.log('Listening API...')
