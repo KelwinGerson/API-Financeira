@@ -117,6 +117,22 @@ app.post("/withdraw", verifyIfExistsAccountCPF, (request, response) =>{
     });
 });
 
+// balance account
+app.get("/statement/date", verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;
+    const { date } = request.query;
+    // create a date with time default
+    const dateFormat = new Date(date + " 00:00");
+    
+    const statement = customer.statement.filter(
+        (statement) => 
+        statement.create_at.toDateString() === 
+        new Date(dateFormat).toDateString()
+    );
+    return response.json(statement)
+});
+
+
 app.listen(1234, () => {
     console.log('Listening API...')
 });
